@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Ivory | Digital Identity Brokerage</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Cormorant+Garamond:ital,wght@0,600;1,600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --primary: #0a0a0b;
+            /* Deep Obsidian */
+            --accent: #c5a059;
+            /* Metallic Gold */
+            --text-main: #1a1a1c;
+            --text-muted: #64748b;
+            --glass: rgba(255, 255, 255, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+        }
+
+        .logo-img {
+            height: 70px;
+            /* Adjust size to look professional */
+            width: auto;
+            display: block;
+        }
+
+        .brand-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .nav-cta {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary);
+            text-decoration: none;
+            padding: 12px 24px;
+            border: 1px solid var(--primary);
+            border-radius: 2px;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Hero */
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 8%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .kicker {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            line-height: 1.1;
+            font-weight: 600;
+            margin-bottom: 40px;
+            color: var(--primary);
+        }
+
+        .description {
+            font-size: 1.2rem;
+            max-width: 600px;
+            color: var(--text-muted);
+            margin-bottom: 50px;
+            font-weight: 300;
+        }
+
+        /* Services Grid */
+        .services {
+            padding: 120px 8%;
+            background: #0a0a0b;
+            color: white;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 60px;
+        }
+
+        .service-item h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .service-item p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        /* Trust Banner */
+        .trust {
+            padding: 100px 8%;
+            text-align: center;
+            background: white;
+        }
+
+        .trust h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 100px 8% 40px;
+            background: #fafafa;
+            border-top: 1px solid #eeeeee;
+        }
+
+        .footer-flex {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 50px;
+            margin-bottom: 60px;
+        }
+
+        .footer-col h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .footer-col p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+
+        .location {
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 20px;
+        }
+
+        .copyright {
+            font-size: 0.75rem;
+            color: #999;
+            text-align: center;
+            border-top: 1px solid #eeeeee;
+            padding-top: 40px;
+        }
+
+        /* Animations */
+        .reveal {
+            animation: fadeUp 1.2s forwards;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+
+            nav {
+                padding: 15px 5%;
+            }
+
+            .logo-img {
+                height: 40px;
+            }
+
+            .brand-text {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <!-- Updated to look for logo.png in your GitHub folder -->
+        <a href="#" class="logo-container">
+            <img src="brand-ivory-logo.png" alt="Brand Ivory" class="logo-img">
+            <span class="brand-text">BRAND IVORY</span>
+        </a>
+        <a href="mailto:yassine@brandivory.com" class="nav-cta">Inquire</a>
+    </nav>
+
+    <header>
+        <div class="reveal">
+            <span class="kicker">Digital Identity Defined</span>
+            <h1>Securing Global Market Authority for Brands</h1>
+            <p class="description">Brand Ivory is a private brokerage facilitating the secure acquisition of world-class
+                digital identities for high-growth enterprises.</p>
+            <!-- Button fixed to trigger email -->
+            <a href="mailto:yassine@brandivory.com" class="nav-cta"
+                style="background: var(--primary); color: white;">Start a Conversation</a>
+        </div>
+    </header>
+
+    <section class="services">
+        <div class="grid">
+            <div class="service-item">
+                <h3>Bespoke Acquisitions</h3>
+                <p>We leverage deep industry networks to source and secure premium digital assets that align with your
+                    brand’s long-term strategic vision.</p>
+            </div>
+            <div class="service-item">
+                <h3>Private Brokerage</h3>
+                <p>Facilitating confidential transfers for category-defining domain names. Our process prioritizes
+                    professional integrity and absolute discretion.</p>
+            </div>
+            <div class="service-item">
+                <h3>Institutional Security</h3>
+                <p>All transactions are protected via industry-leading fiduciaries and escrow services, ensuring a
+                    seamless and secure exchange of ownership.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="trust">
+        <h2>Professional Integrity. Worldwide.</h2>
+        <p style="max-width: 600px; margin: 0 auto; color: var(--text-muted);">Trusted by founders and organizations to
+            manage their most vital digital representations.</p>
+    </section>
+
+    <footer>
+        <div class="footer-flex">
+            <div class="footer-col">
+                <!-- Footer logo added -->
+                <img src="logo.png" alt="Brand Ivory" class="logo-img" style="margin-bottom: 20px; height: 40px;">
+                <p style="max-width: 300px;">Strategic management of premium digital identities and corporate assets.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <p>yassine@brandivory.com</p>
+                <p>LinkedIn: /in/yassinemourchid</p>
+                <p class="location">Seattle, Washington, USA</p>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2025 Brand Ivory. Private Brokerage Bureau.
+        </div>
+    </footer>
+
+</body>
+
+</html>
