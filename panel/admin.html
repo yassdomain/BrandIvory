@@ -1,1 +1,2493 @@
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AnalyticsPro | Website Analytics Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+    <style>
+        :root {
+            --primary: #4e73df;
+            --primary-dark: #2e59d9;
+            --secondary: #858796;
+            --success: #1cc88a;
+            --info: #36b9cc;
+            --warning: #f6c23e;
+            --danger: #e74a3b;
+            --light: #f8f9fc;
+            --dark: #5a5c69;
+            --sidebar-width: 14rem;
+            --topbar-height: 4.375rem;
+        }
+        
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fc;
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--primary) 0%, #224abe 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 0;
+            z-index: 1000;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(0);
+        }
+        
+        .sidebar-brand {
+            height: var(--topbar-height);
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 800;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            letter-spacing: 0.05rem;
+            z-index: 1;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar-brand-icon i {
+            font-size: 2rem;
+        }
+        
+        .sidebar-brand-text {
+            display: inline;
+            margin-left: 0.5rem;
+        }
+        
+        .sidebar-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            margin: 0 1rem 1rem;
+        }
+        
+        .sidebar-heading {
+            text-align: left;
+            padding: 0 1rem;
+            font-weight: 800;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .nav-item {
+            position: relative;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .nav-link i {
+            font-size: 0.85rem;
+            margin-right: 0.25rem;
+        }
+        
+        .nav-link:hover {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Sidebar Toggle Button */
+        .sidebar-toggler {
+            display: none;
+            position: fixed;
+            left: 1rem;
+            top: 1rem;
+            z-index: 1100;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        /* Sidebar Close Button (Mobile) */
+        .sidebar-close {
+            display: none;
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            z-index: 1100;
+        }
+        
+        /* Overlay for mobile when sidebar is open */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        
+        /* Topbar */
+        .topbar {
+            height: var(--topbar-height);
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            background-color: #fff;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: var(--sidebar-width);
+            z-index: 999;
+            transition: all 0.3s;
+        }
+        
+        .topbar-divider {
+            width: 1px;
+            height: calc(var(--topbar-height) - 2rem);
+            background-color: #e3e6f0;
+            margin: 0 1rem;
+        }
+        
+        .nav-item.dropdown .dropdown-toggle::after {
+            display: none;
+        }
+        
+        /* Main Content */
+        .content-wrapper {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--topbar-height);
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            padding: 1rem 1.35rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .card-body {
+            padding: 1.25rem;
+        }
+        
+        /* Stats Cards */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            border-left: 0.25rem solid transparent;
+        }
+        
+        .stat-card.primary {
+            border-left-color: var(--primary);
+        }
+        
+        .stat-card.success {
+            border-left-color: var(--success);
+        }
+        
+        .stat-card.info {
+            border-left-color: var(--info);
+        }
+        
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .stat-card .stat-title {
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: var(--secondary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-card .stat-value {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+        
+        .stat-card .stat-icon {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+        
+        /* Charts */
+        .chart-area, .chart-pie {
+            position: relative;
+            height: 20rem;
+            width: 100%;
+        }
+        
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            color: #212529;
+        }
+        
+        .table th {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--secondary);
+            border-top: none;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+        
+        .table td {
+            vertical-align: middle;
+            padding: 1rem;
+            border-top: 1px solid #e3e6f0;
+        }
+        
+        .table tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        /* Badges */
+        .badge {
+            font-weight: 600;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+        }
+        
+        .badge-primary {
+            background-color: var(--primary);
+        }
+        
+        .badge-success {
+            background-color: var(--success);
+        }
+        
+        .badge-info {
+            background-color: var(--info);
+        }
+        
+        .badge-warning {
+            background-color: var(--warning);
+        }
+        
+        .badge-danger {
+            background-color: var(--danger);
+        }
+        
+        /* Login Page */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f8f9fc;
+        }
+        
+        .login-card {
+            width: 100%;
+            max-width: 450px;
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.2);
+        }
+        
+        .login-card .card-header {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            border-radius: 0.5rem 0.5rem 0 0 !important;
+            padding: 1.5rem;
+        }
+        
+        .login-card .card-body {
+            padding: 2rem;
+        }
+        
+        .login-logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        /* Loading Spinner */
+        .spinner-border {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-width: 0.2em;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.toggled {
+                transform: translateX(0);
+            }
+            
+            .sidebar-overlay.visible {
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .sidebar-close {
+                display: block;
+            }
+            
+            .sidebar-toggler {
+                display: flex;
+            }
+            
+            .topbar {
+                left: 0;
+            }
+            
+            .content-wrapper {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggled .sidebar {
+                transform: translateX(0);
+            }
+            
+            .sidebar-toggled .topbar,
+            .sidebar-toggled .content-wrapper {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggled .sidebar-overlay {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Visitor Details Modal */
+        .visitor-details .detail-row {
+            display: flex;
+            margin-bottom: 0.75rem;
+        }
+        
+        .visitor-details .detail-label {
+            font-weight: 600;
+            width: 120px;
+            color: var(--secondary);
+        }
+        
+        .visitor-details .detail-value {
+            flex: 1;
+        }
+        
+        /* Domain Badge */
+        .domain-badge {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .domain-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+        }
+
+        /* Referrer Badge */
+        .referrer-badge {
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="card-header">
+                <div class="login-logo">
+                    <i class="fas fa-chart-line"></i> AnalyticsPro
+                </div>
+                <div>Professional Website Analytics Dashboard</div>
+            </div>
+            <div class="card-body">
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" required autocomplete="username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" required autocomplete="current-password">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </div>
+                    <div id="loginError" class="alert alert-danger mt-3 mb-0 d-none"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboardPage" class="d-none">
+        <!-- Sidebar Toggle Button (Mobile) -->
+        <button class="sidebar-toggler" id="sidebarToggleBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- Sidebar -->
+        <nav class="sidebar bg-gradient-primary">
+            <button class="sidebar-close" id="sidebarCloseBtn">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="sidebar-brand-text">AnalyticsPro</div>
+            </div>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-heading">Core</div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-page="dashboard">
+                        <i class="fas fa-fw fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-page="visitors">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>Visitor Logs</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-page="domains">
+                        <i class="fas fa-fw fa-globe"></i>
+                        <span>Domains</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-heading">System</div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="logoutBtn">
+                        <i class="fas fa-fw fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Topbar -->
+        <nav class="topbar navbar navbar-expand navbar-light">
+            <div class="container-fluid">
+                <!-- Sidebar Toggle (Desktop) -->
+                <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <!-- Topbar Navbar -->
+                <ul class="navbar-nav ms-auto">
+                    <div class="topbar-divider d-none d-sm-block"></div>
+
+                    <!-- Nav Item - User Information -->
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="me-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
+                            <img class="img-profile rounded-circle" src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff&size=32" width="32" height="32">
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="content-wrapper">
+            <!-- Dashboard Page -->
+            <div class="page-content" id="dashboardContent">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">Dashboard Overview</h1>
+                    <div class="d-flex">
+                        <div class="dropdown me-2">
+                            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="timeRangeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-calendar fa-sm"></i> Last 7 days
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="timeRangeDropdown">
+                                <li><a class="dropdown-item" href="#" data-range="7">Last 7 days</a></li>
+                                <li><a class="dropdown-item" href="#" data-range="30">Last 30 days</a></li>
+                                <li><a class="dropdown-item" href="#" data-range="90">Last 90 days</a></li>
+                                <li><a class="dropdown-item" href="#" data-range="365">Last year</a></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-sm btn-secondary" id="refreshDashboard">
+                            <i class="fas fa-sync-alt fa-sm"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card primary h-100">
+                            <div class="card-body">
+                                <div class="stat-title">Total Visits</div>
+                                <div class="stat-value" id="totalVisits">0</div>
+                                <div class="text-xs font-weight-bold text-primary d-inline-flex align-items-center">
+                                    <i class="fas fa-caret-up me-1"></i> 12% from last period
+                                </div>
+                                <div class="stat-icon text-primary">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card success h-100">
+                            <div class="card-body">
+                                <div class="stat-title">Unique Visitors</div>
+                                <div class="stat-value" id="uniqueVisitors">0</div>
+                                <div class="text-xs font-weight-bold text-success d-inline-flex align-items-center">
+                                    <i class="fas fa-caret-up me-1"></i> 8% from last period
+                                </div>
+                                <div class="stat-icon text-success">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card info h-100">
+                            <div class="card-body">
+                                <div class="stat-title">Page Views</div>
+                                <div class="stat-value" id="pageViews">0</div>
+                                <div class="text-xs font-weight-bold text-info d-inline-flex align-items-center">
+                                    <i class="fas fa-caret-up me-1"></i> 15% from last period
+                                </div>
+                                <div class="stat-icon text-info">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card warning h-100">
+                            <div class="card-body">
+                                <div class="stat-title">Avg. Time</div>
+                                <div class="stat-value" id="avgTime">0s</div>
+                                <div class="text-xs font-weight-bold text-warning d-inline-flex align-items-center">
+                                    <i class="fas fa-caret-down me-1"></i> 3% from last period
+                                </div>
+                                <div class="stat-icon text-warning">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row mb-4">
+                    <div class="col-xl-8">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Visitor Trend</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-area">
+                                    <canvas id="trendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Traffic Sources</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-pie">
+                                    <canvas id="trafficChart"></canvas>
+                                </div>
+                                <div class="mt-4 text-center small">
+                                    <span class="me-2"><i class="fas fa-circle text-primary"></i> Direct</span>
+                                    <span class="me-2"><i class="fas fa-circle text-success"></i> Social</span>
+                                    <span class="me-2"><i class="fas fa-circle text-info"></i> Referral</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Visitors -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Recent Visitors</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="recentVisitorsTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Visitor</th>
+                                        <th>Location</th>
+                                        <th>Device</th>
+                                        <th>Referrer</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentVisitorsTableBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <div class="mt-2">Loading visitor data...</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visitors Page -->
+            <div class="page-content d-none" id="visitorsContent">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">Visitor Logs</h1>
+                    <div class="d-flex">
+                        <button class="btn btn-sm btn-danger me-2" id="clearVisitorData">
+                            <i class="fas fa-trash fa-sm"></i> Clear Data
+                        </button>
+                        <button class="btn btn-sm btn-secondary" id="exportVisitorData">
+                            <i class="fas fa-download fa-sm"></i> Export
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Date Range</label>
+                                <select class="form-select" id="visitorDateRange">
+                                    <option value="today">Today</option>
+                                    <option value="yesterday">Yesterday</option>
+                                    <option value="7days" selected>Last 7 days</option>
+                                    <option value="30days">Last 30 days</option>
+                                    <option value="90days">Last 90 days</option>
+                                    <option value="custom">Custom Range</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3 d-none" id="customDateRangeContainer">
+                                <label class="form-label">Custom Range</label>
+                                <input type="text" class="form-control" id="customDateRange" placeholder="Select date range">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Country</label>
+                                <select class="form-select" id="visitorCountryFilter">
+                                    <option value="">All Countries</option>
+                                    <!-- Countries will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Device Type</label>
+                                <select class="form-select" id="visitorDeviceFilter">
+                                    <option value="">All Devices</option>
+                                    <option value="Desktop">Desktop</option>
+                                    <option value="Mobile">Mobile</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Search</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="visitorSearch" placeholder="Search by IP, domain, referrer...">
+                                    <button class="btn btn-primary" type="button" id="searchVisitorData">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Domain</label>
+                                <select class="form-select" id="visitorDomainFilter">
+                                    <option value="">All Domains</option>
+                                    <!-- Domains will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Items per page</label>
+                                <select class="form-select" id="visitorItemsPerPage">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50" selected>50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-primary me-2" id="applyVisitorFilters">
+                                <i class="fas fa-filter me-1"></i> Apply Filters
+                            </button>
+                            <button class="btn btn-outline-secondary" id="resetVisitorFilters">
+                                <i class="fas fa-undo me-1"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visitor Logs Table -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Visitor Logs</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="visitorLogsTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>IP Address</th>
+                                        <th>Location</th>
+                                        <th>Device</th>
+                                        <th>Domain</th>
+                                        <th>Referrer</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="visitorLogsTableBody">
+                                    <!-- Data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted" id="visitorLogsInfo">
+                                Showing 0 to 0 of 0 entries
+                            </div>
+                            <nav>
+                                <ul class="pagination mb-0" id="visitorLogsPagination">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Domains Page -->
+            <div class="page-content d-none" id="domainsContent">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">Domains</h1>
+                    <button class="btn btn-sm btn-primary" id="addDomainBtn">
+                        <i class="fas fa-plus fa-sm"></i> Add Domain
+                    </button>
+                </div>
+
+                <!-- Domain Stats -->
+                <div class="row mb-4">
+                    <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="card stat-card primary h-100">
+                            <div class="card-body">
+                                <div class="stat-title">Total Domains</div>
+                                <div class="stat-value" id="totalDomains">0</div>
+                                <div class="stat-icon text-primary">
+                                    <i class="fas fa-globe"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="card stat-card success h-100">
+                            <div class="card-body">
+                                <div class="stat-title">Active Domains</div>
+                                <div class="stat-value" id="activeDomains">0</div>
+                                <div class="stat-icon text-success">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="card stat-card info h-100">
+                            <div class="card-body">
+                                <div class="stat-title">Tracking Code</div>
+                                <div class="stat-value text-sm" id="trackingCodeStatus">Ready</div>
+                                <div class="stat-icon text-info">
+                                    <i class="fas fa-code"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Domains Table -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Your Domains</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="domainsTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Domain</th>
+                                        <th>Status</th>
+                                        <th>Visits (7d)</th>
+                                        <th>Unique Visitors</th>
+                                        <th>Last Active</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="domainsTableBody">
+                                    <!-- Data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visitor Details Modal -->
+    <div class="modal fade" id="visitorDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Visitor Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-2">
+                            <img src="https://flagcdn.com/120x90/us.png" class="img-fluid" alt="United States" id="visitorFlag">
+                        </div>
+                        <div class="col-md-10">
+                            <h4 id="visitorIp">192.168.1.1</h4>
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                <span class="badge bg-primary" id="visitorDevice">Desktop</span>
+                                <span class="badge bg-success" id="visitorBrowser">Chrome</span>
+                                <span class="badge bg-info" id="visitorOs">Windows 10</span>
+                            </div>
+                            <div id="visitorLocation">New York, United States</div>
+                        </div>
+                    </div>
+                    
+                    <div class="visitor-details">
+                        <div class="detail-row">
+                            <div class="detail-label">First Seen</div>
+                            <div class="detail-value" id="visitorFirstSeen">Today, 10:45 AM</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Last Seen</div>
+                            <div class="detail-value" id="visitorLastSeen">Just now</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Total Visits</div>
+                            <div class="detail-value" id="visitorTotalVisits">12</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">ISP</div>
+                            <div class="detail-value" id="visitorIsp">Comcast Cable</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Screen Resolution</div>
+                            <div class="detail-value" id="visitorResolution">1920x1080</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Referrer Source</div>
+                            <div class="detail-value" id="visitorReferrer">Direct</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>Recent Visits</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Domain</th>
+                                        <th>Referrer</th>
+                                        <th>Duration</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="visitorPageViews">
+                                    <tr>
+                                        <td>Just now</td>
+                                        <td>example.com</td>
+                                        <td>Direct</td>
+                                        <td>0s</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">View Full History</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Domain Details Modal -->
+    <div class="modal fade" id="domainDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="domainModalTitle">Domain Analytics: example.com</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card stat-card primary h-100">
+                                <div class="card-body">
+                                    <div class="stat-title">Total Visits</div>
+                                    <div class="stat-value">1,245</div>
+                                    <div class="text-xs font-weight-bold text-primary d-inline-flex align-items-center">
+                                        <i class="fas fa-caret-up me-1"></i> 12% from last period
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card success h-100">
+                                <div class="card-body">
+                                    <div class="stat-title">Unique Visitors</div>
+                                    <div class="stat-value">842</div>
+                                    <div class="text-xs font-weight-bold text-success d-inline-flex align-items-center">
+                                        <i class="fas fa-caret-up me-1"></i> 8% from last period
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card info h-100">
+                                <div class="card-body">
+                                    <div class="stat-title">Page Views</div>
+                                    <div class="stat-value">2,156</div>
+                                    <div class="text-xs font-weight-bold text-info d-inline-flex align-items-center">
+                                        <i class="fas fa-caret-up me-1"></i> 15% from last period
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card warning h-100">
+                                <div class="card-body">
+                                    <div class="stat-title">Avg. Time</div>
+                                    <div class="stat-value">2m 15s</div>
+                                    <div class="text-xs font-weight-bold text-warning d-inline-flex align-items-center">
+                                        <i class="fas fa-caret-down me-1"></i> 3% from last period
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="card shadow h-100">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Visitor Trend</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <canvas id="domainTrendChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card shadow h-100">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Traffic Sources</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-pie">
+                                        <canvas id="domainTrafficChart"></canvas>
+                                    </div>
+                                    <div class="mt-4 text-center small">
+                                        <span class="me-2"><i class="fas fa-circle text-primary"></i> Direct</span>
+                                        <span class="me-2"><i class="fas fa-circle text-success"></i> Social</span>
+                                        <span class="me-2"><i class="fas fa-circle text-info"></i> Referral</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Top Referrers</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Source</th>
+                                            <th>Visits</th>
+                                            <th>Unique Visitors</th>
+                                            <th>Avg. Duration</th>
+                                            <th>Bounce Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Direct</td>
+                                            <td>456</td>
+                                            <td>312</td>
+                                            <td>1m 45s</td>
+                                            <td>42%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>google.com</td>
+                                            <td>320</td>
+                                            <td>210</td>
+                                            <td>1m 30s</td>
+                                            <td>48%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>facebook.com</td>
+                                            <td>150</td>
+                                            <td>120</td>
+                                            <td>2m 15s</td>
+                                            <td>35%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Generate Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Domain Modal -->
+    <div class="modal fade" id="addDomainModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Domain</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addDomainForm">
+                        <div class="mb-3">
+                            <label for="domainName" class="form-label">Domain Name</label>
+                            <input type="text" class="form-control" id="domainName" placeholder="example.com" required>
+                            <div class="form-text">Enter your domain without http:// or https://</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="domainTimezone" class="form-label">Timezone</label>
+                            <select class="form-select" id="domainTimezone" required>
+                                <option value="UTC">UTC</option>
+                                <option value="America/New_York" selected>America/New York</option>
+                                <option value="America/Chicago">America/Chicago</option>
+                                <option value="America/Los_Angeles">America/Los Angeles</option>
+                                <option value="Europe/London">Europe/London</option>
+                                <option value="Europe/Berlin">Europe/Berlin</option>
+                                <option value="Asia/Tokyo">Asia/Tokyo</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="enableTracking" checked>
+                            <label class="form-check-label" for="enableTracking">Enable tracking immediately</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="addDomainForm" class="btn btn-primary">Add Domain</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & Plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.0/dist/chartjs-adapter-luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
+
+    <!-- Firebase -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getDatabase, ref, onValue, remove, push, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyC4xH9pmRb3TFnQr5ts31pl9xBgddFBTo0",
+          authDomain: "brandivory-137db.firebaseapp.com",
+          databaseURL: "https://brandivory-137db-default-rtdb.firebaseio.com",
+          projectId: "brandivory-137db",
+          storageBucket: "brandivory-137db.firebasestorage.app",
+          messagingSenderId: "104657837718",
+          appId: "1:104657837718:web:1e22a881fda845a343acb7",
+          measurementId: "G-VYVGS0F9F9"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Global variables
+        let currentPage = 'dashboard';
+        let visitorData = [];
+        let filteredVisitorData = [];
+        let currentVisitorPage = 1;
+        let visitorItemsPerPage = 50;
+        let domainData = [];
+        let trendChart, trafficChart, domainTrendChart, domainTrafficChart;
+        let isLoggedIn = false;
+        let uniqueDomains = new Set();
+        let uniqueCountries = new Set();
+
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for saved login
+            checkRememberedLogin();
+            
+            // Initialize charts
+            initCharts();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Load data from Firebase
+            loadFirebaseData();
+        });
+
+        function checkRememberedLogin() {
+            const rememberedLogin = localStorage.getItem('analyticsProLogin');
+            if (rememberedLogin) {
+                const { username, password } = JSON.parse(rememberedLogin);
+                document.getElementById('username').value = username;
+                document.getElementById('password').value = password;
+                document.getElementById('rememberMe').checked = true;
+            }
+        }
+
+        function initCharts() {
+            // Main Trend Chart
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Visitors',
+                        data: [],
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#4e73df',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 5,
+                        pointHoverBorderWidth: 2
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Main Traffic Chart
+            const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+            trafficChart = new Chart(trafficCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Direct', 'Social', 'Referral'],
+                    datasets: [{
+                        data: [55, 30, 15],
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
+                        hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgb(255,255,255)',
+                            bodyColor: '#858796',
+                            borderColor: '#dddfeb',
+                            borderWidth: 1,
+                            padding: 15,
+                            displayColors: false,
+                            caretPadding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    return `${label}: ${value}%`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Domain Trend Chart (for modal)
+            const domainTrendCtx = document.getElementById('domainTrendChart').getContext('2d');
+            domainTrendChart = new Chart(domainTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Visitors',
+                        data: [],
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#4e73df',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 5,
+                        pointHoverBorderWidth: 2
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Domain Traffic Chart (for modal)
+            const domainTrafficCtx = document.getElementById('domainTrafficChart').getContext('2d');
+            domainTrafficChart = new Chart(domainTrafficCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Direct', 'Social', 'Referral'],
+                    datasets: [{
+                        data: [55, 30, 15],
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
+                        hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgb(255,255,255)',
+                            bodyColor: '#858796',
+                            borderColor: '#dddfeb',
+                            borderWidth: 1,
+                            padding: 15,
+                            displayColors: false,
+                            caretPadding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    return `${label}: ${value}%`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            // Login Form
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const rememberMe = document.getElementById('rememberMe').checked;
+                
+                if (username === 'admin' && password === 'admin') {
+                    // Successful login
+                    isLoggedIn = true;
+                    
+                    // Remember login if checked
+                    if (rememberMe) {
+                        localStorage.setItem('analyticsProLogin', JSON.stringify({ username, password }));
+                    } else {
+                        localStorage.removeItem('analyticsProLogin');
+                    }
+                    
+                    // Show dashboard
+                    document.getElementById('loginPage').classList.add('d-none');
+                    document.getElementById('dashboardPage').classList.remove('d-none');
+                    
+                    // Update UI
+                    updateUI();
+                } else {
+                    // Failed login
+                    const errorElement = document.getElementById('loginError');
+                    errorElement.textContent = 'Invalid username or password';
+                    errorElement.classList.remove('d-none');
+                }
+            });
+            
+            // Logout Button
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                isLoggedIn = false;
+                localStorage.removeItem('analyticsProLogin');
+                document.getElementById('dashboardPage').classList.add('d-none');
+                document.getElementById('loginPage').classList.remove('d-none');
+                document.getElementById('loginError').classList.add('d-none');
+            });
+            
+            // Sidebar Toggle (Desktop)
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.body.classList.toggle('sidebar-toggled');
+                document.querySelector('.sidebar').classList.toggle('toggled');
+            });
+            
+            // Sidebar Toggle (Mobile)
+            document.getElementById('sidebarToggleBtn').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('toggled');
+                document.getElementById('sidebarOverlay').classList.toggle('visible');
+            });
+            
+            // Sidebar Close (Mobile)
+            document.getElementById('sidebarCloseBtn').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.remove('toggled');
+                document.getElementById('sidebarOverlay').classList.remove('visible');
+            });
+            
+            // Sidebar Overlay Click (Mobile)
+            document.getElementById('sidebarOverlay').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.remove('toggled');
+                this.classList.remove('visible');
+            });
+            
+            // Navigation Links - Close sidebar on mobile when clicking a link
+            document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    navigateTo(page);
+                    
+                    // Close sidebar on mobile
+                    if (window.innerWidth <= 768) {
+                        document.querySelector('.sidebar').classList.remove('toggled');
+                        document.getElementById('sidebarOverlay').classList.remove('visible');
+                    }
+                });
+            });
+            
+            // Domain Links
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('domain-link')) {
+                    e.preventDefault();
+                    showDomainDetails(e.target.textContent);
+                }
+                
+                if (e.target.classList.contains('view-domain-btn')) {
+                    e.preventDefault();
+                    const domain = e.target.getAttribute('data-domain');
+                    showDomainDetails(domain);
+                }
+            });
+            
+            // Add Domain Button
+            document.getElementById('addDomainBtn').addEventListener('click', function() {
+                const modal = new bootstrap.Modal(document.getElementById('addDomainModal'));
+                modal.show();
+            });
+            
+            // Visitor Filter Controls
+            document.getElementById('visitorDateRange').addEventListener('change', function() {
+                const customRangeContainer = document.getElementById('customDateRangeContainer');
+                if (this.value === 'custom') {
+                    customRangeContainer.classList.remove('d-none');
+                } else {
+                    customRangeContainer.classList.add('d-none');
+                }
+            });
+            
+            document.getElementById('applyVisitorFilters').addEventListener('click', function() {
+                filterVisitorData();
+            });
+            
+            document.getElementById('searchVisitorData').addEventListener('click', function() {
+                filterVisitorData();
+            });
+            
+            document.getElementById('visitorSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    filterVisitorData();
+                }
+            });
+            
+            document.getElementById('resetVisitorFilters').addEventListener('click', function() {
+                resetVisitorFilters();
+            });
+            
+            document.getElementById('visitorItemsPerPage').addEventListener('change', function() {
+                visitorItemsPerPage = parseInt(this.value);
+                currentVisitorPage = 1;
+                renderVisitorTable();
+            });
+            
+            // Export and Clear Data Buttons
+            document.getElementById('exportVisitorData').addEventListener('click', exportVisitorData);
+            document.getElementById('clearVisitorData').addEventListener('click', clearVisitorData);
+            
+            // Refresh Dashboard Button
+            document.getElementById('refreshDashboard').addEventListener('click', function() {
+                loadFirebaseData();
+            });
+        }
+
+        function loadFirebaseData() {
+            const visitorsRef = ref(database, 'visitors');
+            
+            // Show loading state
+            document.getElementById('recentVisitorsTableBody').innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="mt-2">Loading visitor data...</div>
+                    </td>
+                </tr>
+            `;
+            
+            onValue(visitorsRef, (snapshot) => {
+                const data = snapshot.val();
+                visitorData = data ? Object.values(data) : [];
+                
+                // Sort by timestamp (newest first)
+                visitorData.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                
+                // Process domains and countries
+                uniqueDomains = new Set();
+                uniqueCountries = new Set();
+                
+                visitorData.forEach(visitor => {
+                    if (visitor.domain) uniqueDomains.add(visitor.domain);
+                    if (visitor.country) uniqueCountries.add(visitor.country);
+                    
+                    // Fix for Morocco country name
+                    if (visitor.countryCode === 'MA') {
+                        visitor.country = 'Morocco';
+                    }
+                });
+                
+                // Update filters
+                updateDomainFilter();
+                updateCountryFilter();
+                
+                // Update dashboard stats
+                updateDashboardStats();
+                
+                // Update charts
+                updateCharts();
+                
+                // Render recent visitors
+                renderRecentVisitors();
+                
+                // If on visitors page, render the full table
+                if (currentPage === 'visitors') {
+                    filteredVisitorData = [...visitorData];
+                    renderVisitorTable();
+                    updateVisitorPagination();
+                }
+            }, (error) => {
+                console.error('Error loading data:', error);
+                document.getElementById('recentVisitorsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-danger">
+                            Failed to load visitor data. Please try again.
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateDomainFilter() {
+            const domainFilter = document.getElementById('visitorDomainFilter');
+            
+            // Clear existing options except the first one
+            while (domainFilter.options.length > 1) {
+                domainFilter.remove(1);
+            }
+            
+            // Add unique domains
+            uniqueDomains.forEach(domain => {
+                const option = document.createElement('option');
+                option.value = domain;
+                option.textContent = domain;
+                domainFilter.appendChild(option);
+            });
+        }
+
+        function updateCountryFilter() {
+            const countryFilter = document.getElementById('visitorCountryFilter');
+            
+            // Clear existing options except the first one
+            while (countryFilter.options.length > 1) {
+                countryFilter.remove(1);
+            }
+            
+            // Add unique countries
+            uniqueCountries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                countryFilter.appendChild(option);
+            });
+        }
+
+        function updateDashboardStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Calculate stats
+            const totalVisits = visitorData.length;
+            const todayVisits = visitorData.filter(v => {
+                const visitDate = new Date(v.timestamp || 0);
+                return visitDate >= today;
+            }).length;
+            
+            const uniqueIPs = new Set(visitorData.map(v => v.ip)).size;
+            
+            // Find top country
+            const countryCount = {};
+            visitorData.forEach(v => {
+                if (v.country) {
+                    countryCount[v.country] = (countryCount[v.country] || 0) + 1;
+                }
+            });
+            
+            const topCountry = Object.keys(countryCount).reduce((a, b) => 
+                countryCount[a] > countryCount[b] ? a : b, 'Unknown');
+            
+            // Update UI
+            document.getElementById('totalVisits').textContent = totalVisits.toLocaleString();
+            document.getElementById('uniqueVisitors').textContent = uniqueIPs.toLocaleString();
+            document.getElementById('pageViews').textContent = (totalVisits * 1.5).toLocaleString(); // Estimate page views
+            document.getElementById('avgTime').textContent = '2m 15s'; // Placeholder
+            
+            // Update domain stats
+            document.getElementById('totalDomains').textContent = uniqueDomains.size;
+            document.getElementById('activeDomains').textContent = uniqueDomains.size; // All domains are considered active
+        }
+
+        function updateCharts() {
+            // Update trend chart (last 7 days)
+            const last7Days = [];
+            const visitCounts = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                date.setHours(0, 0, 0, 0);
+                const nextDate = new Date(date);
+                nextDate.setDate(date.getDate() + 1);
+                
+                const dayVisits = visitorData.filter(v => {
+                    const visitDate = new Date(v.timestamp || 0);
+                    return visitDate >= date && visitDate < nextDate;
+                }).length;
+                
+                last7Days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+                visitCounts.push(dayVisits);
+            }
+            
+            trendChart.data.labels = last7Days;
+            trendChart.data.datasets[0].data = visitCounts;
+            trendChart.update();
+        }
+
+        function renderRecentVisitors() {
+            const recentVisitors = visitorData.slice(0, 5); // Get 5 most recent visitors
+            
+            if (recentVisitors.length === 0) {
+                document.getElementById('recentVisitorsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-5">No visitors found</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let tableHTML = '';
+            
+            recentVisitors.forEach(visitor => {
+                const date = new Date(visitor.timestamp);
+                const timeString = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                
+                tableHTML += `
+                    <tr>
+                        <td>${timeString}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                ${visitor.countryCode ? `<img src="https://flagcdn.com/20x15/${visitor.countryCode.toLowerCase()}.png" class="me-2" width="20" height="15" alt="${visitor.countryCode}">` : ''}
+                                <span>${visitor.ip || 'Unknown'}</span>
+                            </div>
+                        </td>
+                        <td>
+                            ${visitor.city ? `${visitor.city}, ` : ''}${visitor.country || 'Unknown'}
+                        </td>
+                        <td>
+                            <span class="badge ${getDeviceBadgeClass(visitor.deviceType)}">${visitor.deviceType || 'Unknown'}</span>
+                        </td>
+                        <td>
+                            <span class="referrer-badge text-muted">${visitor.referrer || 'Direct'}</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary view-visitor-btn" data-id="${visitor.timestamp}">
+                                <i class="fas fa-eye fa-sm"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('recentVisitorsTableBody').innerHTML = tableHTML;
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-visitor-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const timestamp = parseInt(this.getAttribute('data-id'));
+                    const visitor = visitorData.find(v => v.timestamp === timestamp);
+                    showVisitorDetails(visitor);
+                });
+            });
+        }
+
+        function navigateTo(page) {
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-page') === page) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Hide all page contents
+            document.querySelectorAll('.page-content').forEach(content => {
+                content.classList.add('d-none');
+            });
+            
+            // Show selected page content
+            document.getElementById(`${page}Content`).classList.remove('d-none');
+            currentPage = page;
+            
+            // Update page title
+            document.title = `AnalyticsPro | ${page.charAt(0).toUpperCase() + page.slice(1)}`;
+            
+            // Load data if needed
+            if (page === 'visitors') {
+                filteredVisitorData = [...visitorData];
+                renderVisitorTable();
+                updateVisitorPagination();
+            } else if (page === 'domains') {
+                renderDomainsTable();
+            }
+        }
+
+        function filterVisitorData() {
+            const dateRange = document.getElementById('visitorDateRange').value;
+            const country = document.getElementById('visitorCountryFilter').value;
+            const device = document.getElementById('visitorDeviceFilter').value;
+            const domain = document.getElementById('visitorDomainFilter').value;
+            const search = document.getElementById('visitorSearch').value.toLowerCase();
+            
+            // Get date range
+            let startDate, endDate;
+            const now = new Date();
+            
+            switch (dateRange) {
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                    break;
+                case 'yesterday':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case '7days':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+                    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                    break;
+                case '30days':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+                    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                    break;
+                case '90days':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 90);
+                    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                    break;
+                case 'custom':
+                    // In a real app, you would parse the custom date range
+                    startDate = new Date(0);
+                    endDate = new Date();
+                    break;
+                default:
+                    startDate = new Date(0);
+                    endDate = new Date();
+            }
+            
+            // Apply filters
+            filteredVisitorData = visitorData.filter(visitor => {
+                // Date range filter
+                if (visitor.timestamp < startDate.getTime() || visitor.timestamp > endDate.getTime()) {
+                    return false;
+                }
+                
+                // Country filter
+                if (country && visitor.country !== country) {
+                    return false;
+                }
+                
+                // Device filter
+                if (device && visitor.deviceType !== device) {
+                    return false;
+                }
+                
+                // Domain filter
+                if (domain && visitor.domain !== domain) {
+                    return false;
+                }
+                
+                // Search filter
+                if (search) {
+                    const searchFields = [
+                        visitor.ip,
+                        visitor.country,
+                        visitor.city,
+                        visitor.domain,
+                        visitor.referrer,
+                        visitor.deviceType
+                    ].join(' ').toLowerCase();
+                    
+                    if (!searchFields.includes(search)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            // Reset to first page
+            currentVisitorPage = 1;
+            
+            // Render table
+            renderVisitorTable();
+            
+            // Update pagination
+            updateVisitorPagination();
+        }
+
+        function resetVisitorFilters() {
+            document.getElementById('visitorDateRange').value = '7days';
+            document.getElementById('visitorCountryFilter').value = '';
+            document.getElementById('visitorDeviceFilter').value = '';
+            document.getElementById('visitorDomainFilter').value = '';
+            document.getElementById('visitorSearch').value = '';
+            document.getElementById('customDateRangeContainer').classList.add('d-none');
+            
+            filteredVisitorData = [...visitorData];
+            currentVisitorPage = 1;
+            
+            renderVisitorTable();
+            updateVisitorPagination();
+        }
+
+        function renderVisitorTable() {
+            const startIndex = (currentVisitorPage - 1) * visitorItemsPerPage;
+            const endIndex = startIndex + visitorItemsPerPage;
+            const pageData = filteredVisitorData.slice(startIndex, endIndex);
+            
+            if (pageData.length === 0) {
+                document.getElementById('visitorLogsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-5">No visitors found matching your criteria</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let tableHTML = '';
+            
+            pageData.forEach(visitor => {
+                const date = new Date(visitor.timestamp);
+                const timeString = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                const dateString = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                
+                tableHTML += `
+                    <tr>
+                        <td>
+                            <div class="small">${dateString}</div>
+                            <div class="text-muted small">${timeString}</div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                ${visitor.countryCode ? `<img src="https://flagcdn.com/20x15/${visitor.countryCode.toLowerCase()}.png" class="me-2" width="20" height="15" alt="${visitor.countryCode}">` : ''}
+                                <span>${visitor.ip || 'Unknown'}</span>
+                            </div>
+                            <div class="small text-muted">${visitor.isp || ''}</div>
+                        </td>
+                        <td>
+                            ${visitor.city ? `${visitor.city}, ` : ''}${visitor.country || 'Unknown'}
+                        </td>
+                        <td>
+                            <span class="badge ${getDeviceBadgeClass(visitor.deviceType)}">${visitor.deviceType || 'Unknown'}</span>
+                            <div class="small text-muted">${visitor.screenResolution || ''}</div>
+                        </td>
+                        <td>
+                            <span class="domain-badge badge bg-light text-dark">${visitor.domain || 'Unknown'}</span>
+                        </td>
+                        <td>
+                            <span class="referrer-badge text-muted">${visitor.referrer || 'Direct'}</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary view-visitor-btn" data-id="${visitor.timestamp}">
+                                <i class="fas fa-eye fa-sm"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('visitorLogsTableBody').innerHTML = tableHTML;
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-visitor-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const timestamp = parseInt(this.getAttribute('data-id'));
+                    const visitor = visitorData.find(v => v.timestamp === timestamp);
+                    showVisitorDetails(visitor);
+                });
+            });
+        }
+
+        function getDeviceBadgeClass(deviceType) {
+            if (!deviceType) return 'bg-secondary';
+            
+            switch (deviceType.toLowerCase()) {
+                case 'desktop': return 'bg-primary';
+                case 'mobile': return 'bg-success';
+                case 'tablet': return 'bg-info';
+                default: return 'bg-secondary';
+            }
+        }
+
+        function updateVisitorPagination() {
+            const totalPages = Math.ceil(filteredVisitorData.length / visitorItemsPerPage);
+            const pagination = document.getElementById('visitorLogsPagination');
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                document.getElementById('visitorLogsInfo').textContent = 
+                    `Showing ${filteredVisitorData.length} of ${visitorData.length} entries`;
+                return;
+            }
+            
+            let paginationHTML = '';
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentVisitorPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            // Previous button
+            paginationHTML += `
+                <li class="page-item ${currentVisitorPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" aria-label="Previous" data-page="${currentVisitorPage - 1}">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            `;
+            
+            // First page and ellipsis if needed
+            if (startPage > 1) {
+                paginationHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" data-page="1">1</a>
+                    </li>
+                `;
+                if (startPage > 2) {
+                    paginationHTML += `
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">...</a>
+                        </li>
+                    `;
+                }
+            }
+            
+            // Page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <li class="page-item ${i === currentVisitorPage ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>
+                `;
+            }
+            
+            // Last page and ellipsis if needed
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    paginationHTML += `
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">...</a>
+                        </li>
+                    `;
+                }
+                paginationHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a>
+                    </li>
+                `;
+            }
+            
+            // Next button
+            paginationHTML += `
+                <li class="page-item ${currentVisitorPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" aria-label="Next" data-page="${currentVisitorPage + 1}">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            `;
+            
+            pagination.innerHTML = paginationHTML;
+            
+            // Add event listeners to page links
+            document.querySelectorAll('#visitorLogsPagination .page-link[data-page]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = parseInt(this.getAttribute('data-page'));
+                    if (page !== currentVisitorPage) {
+                        currentVisitorPage = page;
+                        renderVisitorTable();
+                        updateVisitorPagination();
+                    }
+                });
+            });
+            
+            // Update info text
+            const startItem = (currentVisitorPage - 1) * visitorItemsPerPage + 1;
+            const endItem = Math.min(currentVisitorPage * visitorItemsPerPage, filteredVisitorData.length);
+            document.getElementById('visitorLogsInfo').textContent = 
+                `Showing ${startItem} to ${endItem} of ${filteredVisitorData.length} entries (filtered from ${visitorData.length} total entries)`;
+        }
+
+        function renderDomainsTable() {
+            // Create an array of domains with their stats
+            const domainsWithStats = Array.from(uniqueDomains).map(domain => {
+                const domainVisitors = visitorData.filter(v => v.domain === domain);
+                const visits7d = domainVisitors.filter(v => {
+                    const visitDate = new Date(v.timestamp || 0);
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                    return visitDate >= sevenDaysAgo;
+                }).length;
+                
+                const uniqueVisitors = new Set(domainVisitors.map(v => v.ip)).size;
+                
+                const lastActive = domainVisitors.length > 0 ? 
+                    new Date(domainVisitors[0].timestamp).toLocaleString() : 'Never';
+                
+                return {
+                    domain,
+                    visits7d,
+                    uniqueVisitors,
+                    lastActive
+                };
+            });
+            
+            // Sort domains by visits (7d) in descending order
+            domainsWithStats.sort((a, b) => b.visits7d - a.visits7d);
+            
+            if (domainsWithStats.length === 0) {
+                document.getElementById('domainsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-5">No domains found</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let tableHTML = '';
+            
+            domainsWithStats.forEach(domainData => {
+                tableHTML += `
+                    <tr>
+                        <td>
+                            <a href="#" class="domain-link">${domainData.domain}</a>
+                        </td>
+                        <td>
+                            <span class="badge bg-success">Active</span>
+                        </td>
+                        <td>${domainData.visits7d.toLocaleString()}</td>
+                        <td>${domainData.uniqueVisitors.toLocaleString()}</td>
+                        <td>${domainData.lastActive}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1 view-domain-btn" data-domain="${domainData.domain}">
+                                <i class="fas fa-eye fa-sm"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('domainsTableBody').innerHTML = tableHTML;
+        }
+
+        function showVisitorDetails(visitor) {
+            if (!visitor) return;
+            
+            // Set modal content
+            document.getElementById('visitorIp').textContent = visitor.ip || 'Unknown';
+            
+            if (visitor.countryCode) {
+                document.getElementById('visitorFlag').src = `https://flagcdn.com/120x90/${visitor.countryCode.toLowerCase()}.png`;
+                document.getElementById('visitorFlag').alt = visitor.country || 'Unknown';
+            }
+            
+            document.getElementById('visitorLocation').textContent = 
+                `${visitor.city ? visitor.city + ', ' : ''}${visitor.country || 'Unknown'}`;
+            document.getElementById('visitorDevice').textContent = visitor.deviceType || 'Unknown';
+            
+            // Detect browser from user agent
+            let browser = 'Unknown';
+            const ua = visitor.userAgent || '';
+            if (ua.includes('Chrome')) browser = 'Chrome';
+            else if (ua.includes('Firefox')) browser = 'Firefox';
+            else if (ua.includes('Safari')) browser = 'Safari';
+            else if (ua.includes('Edge')) browser = 'Edge';
+            else if (ua.includes('Opera')) browser = 'Opera';
+            else if (ua.includes('MSIE') || ua.includes('Trident/')) browser = 'Internet Explorer';
+            
+            document.getElementById('visitorBrowser').textContent = browser;
+            document.getElementById('visitorOs').textContent = visitor.os || 'Unknown';
+            document.getElementById('visitorFirstSeen').textContent = formatDateTime(visitor.timestamp);
+            document.getElementById('visitorLastSeen').textContent = formatDateTime(visitor.timestamp);
+            
+            // Calculate total visits from this IP
+            const totalVisits = visitorData.filter(v => v.ip === visitor.ip).length;
+            document.getElementById('visitorTotalVisits').textContent = totalVisits;
+            
+            document.getElementById('visitorIsp').textContent = visitor.isp || 'Unknown';
+            document.getElementById('visitorResolution').textContent = visitor.screenResolution || 'Unknown';
+            document.getElementById('visitorReferrer').textContent = visitor.referrer || 'Direct';
+            
+            // Generate recent visits (from this IP)
+            let pageViewsHTML = '';
+            const visitorPageViews = visitorData
+                .filter(v => v.ip === visitor.ip)
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .slice(0, 5);
+            
+            visitorPageViews.forEach((view, index) => {
+                const timeAgo = index === 0 ? 'Just now' : formatTimeAgo(view.timestamp);
+                
+                pageViewsHTML += `
+                    <tr>
+                        <td>${timeAgo}</td>
+                        <td>${view.domain || 'Unknown'}</td>
+                        <td>${view.referrer || 'Direct'}</td>
+                        <td>${index === 0 ? '0s' : 'N/A'}</td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('visitorPageViews').innerHTML = pageViewsHTML;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('visitorDetailsModal'));
+            modal.show();
+        }
+
+        function showDomainDetails(domain) {
+            // Filter visitors for this domain
+            const domainVisitors = visitorData.filter(v => v.domain === domain);
+            
+            if (domainVisitors.length === 0) {
+                alert('No data available for this domain');
+                return;
+            }
+            
+            // Set modal title
+            document.getElementById('domainModalTitle').textContent = `Domain Analytics: ${domain}`;
+            
+            // Calculate domain stats
+            const visits7d = domainVisitors.filter(v => {
+                const visitDate = new Date(v.timestamp || 0);
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                return visitDate >= sevenDaysAgo;
+            }).length;
+            
+            const uniqueVisitors = new Set(domainVisitors.map(v => v.ip)).size;
+            const pageViews = Math.floor(domainVisitors.length * 1.5); // Estimate
+            
+            // Update domain stats cards
+            document.querySelector('#domainDetailsModal .stat-card.primary .stat-value').textContent = 
+                domainVisitors.length.toLocaleString();
+            document.querySelector('#domainDetailsModal .stat-card.success .stat-value').textContent = 
+                uniqueVisitors.toLocaleString();
+            document.querySelector('#domainDetailsModal .stat-card.info .stat-value').textContent = 
+                pageViews.toLocaleString();
+            document.querySelector('#domainDetailsModal .stat-card.warning .stat-value').textContent = 
+                '2m 15s'; // Placeholder
+            
+            // Update domain trend chart with last 7 days data
+            const days = [];
+            const visits = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                date.setHours(0, 0, 0, 0);
+                const nextDate = new Date(date);
+                nextDate.setDate(date.getDate() + 1);
+                
+                const dayVisits = domainVisitors.filter(v => {
+                    const visitDate = new Date(v.timestamp || 0);
+                    return visitDate >= date && visitDate < nextDate;
+                }).length;
+                
+                days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+                visits.push(dayVisits);
+            }
+            
+            domainTrendChart.data.labels = days;
+            domainTrendChart.data.datasets[0].data = visits;
+            domainTrendChart.update();
+            
+            // Calculate traffic sources (simplified)
+            let direct = 0, social = 0, referral = 0;
+            
+            domainVisitors.forEach(visitor => {
+                if (visitor.referrer === 'Direct') {
+                    direct++;
+                } else if (visitor.referrer.includes('facebook') || visitor.referrer.includes('twitter') || 
+                           visitor.referrer.includes('instagram') || visitor.referrer.includes('linkedin')) {
+                    social++;
+                } else {
+                    referral++;
+                }
+            });
+            
+            const total = direct + social + referral;
+            
+            // Update traffic chart
+            domainTrafficChart.data.datasets[0].data = [
+                Math.round((direct / total) * 100),
+                Math.round((social / total) * 100),
+                Math.round((referral / total) * 100)
+            ];
+            domainTrafficChart.update();
+            
+            // Calculate top referrers
+            const referrerCounts = {};
+            domainVisitors.forEach(visitor => {
+                const referrer = visitor.referrer || 'Direct';
+                referrerCounts[referrer] = (referrerCounts[referrer] || 0) + 1;
+            });
+            
+            const sortedReferrers = Object.entries(referrerCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+            
+            // Update top referrers table
+            let topReferrersHTML = '';
+            sortedReferrers.forEach(([referrer, count]) => {
+                topReferrersHTML += `
+                    <tr>
+                        <td>${referrer}</td>
+                        <td>${count}</td>
+                        <td>${Math.round((count / domainVisitors.length) * 100)}%</td>
+                        <td>1m 45s</td>
+                        <td>42%</td>
+                    </tr>
+                `;
+            });
+            
+            document.querySelector('#domainDetailsModal tbody').innerHTML = topReferrersHTML;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('domainDetailsModal'));
+            modal.show();
+        }
+
+        function exportVisitorData() {
+            if (filteredVisitorData.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            // Create CSV content
+            let csvContent = 'Timestamp,IP Address,Country,City,Device Type,OS,Browser,Domain,Referrer\n';
+            
+            filteredVisitorData.forEach(visitor => {
+                const date = new Date(visitor.timestamp);
+                const dateString = date.toLocaleDateString();
+                const timeString = date.toLocaleTimeString();
+                
+                // Detect browser from user agent
+                let browser = 'Unknown';
+                const ua = visitor.userAgent || '';
+                if (ua.includes('Chrome')) browser = 'Chrome';
+                else if (ua.includes('Firefox')) browser = 'Firefox';
+                else if (ua.includes('Safari')) browser = 'Safari';
+                else if (ua.includes('Edge')) browser = 'Edge';
+                else if (ua.includes('Opera')) browser = 'Opera';
+                else if (ua.includes('MSIE') || ua.includes('Trident/')) browser = 'Internet Explorer';
+                
+                csvContent += `"${dateString} ${timeString}",${visitor.ip || 'Unknown'},${visitor.country || 'Unknown'},${visitor.city || 'Unknown'},${visitor.deviceType || 'Unknown'},${visitor.os || 'Unknown'},${browser},${visitor.domain || 'Unknown'},${visitor.referrer || 'Direct'}\n`;
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `visitor_data_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function clearVisitorData() {
+            if (!confirm('Are you sure you want to clear all visitor data? This action cannot be undone.')) {
+                return;
+            }
+            
+            // In a real app, you would make an API call to clear the data
+            const visitorsRef = ref(database, 'visitors');
+            remove(visitorsRef).then(() => {
+                visitorData = [];
+                filteredVisitorData = [];
+                currentVisitorPage = 1;
+                
+                // Update UI
+                updateDashboardStats();
+                updateCharts();
+                renderRecentVisitors();
+                
+                if (currentPage === 'visitors') {
+                    renderVisitorTable();
+                    updateVisitorPagination();
+                }
+                
+                alert('All visitor data has been cleared.');
+            }).catch(error => {
+                console.error('Error clearing data:', error);
+                alert('Failed to clear visitor data. Please try again.');
+            });
+        }
+
+        function formatDateTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function formatTimeAgo(timestamp) {
+            const now = new Date();
+            const date = new Date(timestamp);
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return `${diffInSeconds} second${diffInSeconds !== 1 ? 's' : ''} ago`;
+            }
+            
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
+            }
+            
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+            }
+            
+            const diffInDays = Math.floor(diffInHours / 24);
+            return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+        }
+
+        function updateUI() {
+            // Update active page based on currentPage
+            navigateTo(currentPage);
+            
+            // Update any other UI elements as needed
+        }
+    </script>
+</body>
+</html>
