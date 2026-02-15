@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -24,6 +25,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -227,6 +232,235 @@
             }
         }
 
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 50px 60px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 2rem;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: none;
+            border: none;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        .modal-header {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .modal-subtext {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .email-display {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .email-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .copy-btn:hover {
+            background: #b8944f;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(197, 160, 89, 0.3);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .copy-feedback {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.85rem;
+        }
+
+        .copy-btn.copied .copy-feedback {
+            display: block;
+        }
+
+        .copy-btn.copied .copy-text {
+            display: none;
+        }
+
+        /* Enhanced Button States */
+        .nav-cta:active {
+            transform: scale(0.98);
+        }
+
+        /* Modern Footer */
+        footer {
+            padding: 80px 8% 30px;
+            background: linear-gradient(135deg, #0a0a0b 0%, #1a1a1c 100%);
+            color: white;
+            border-top: 1px solid rgba(197, 160, 89, 0.2);
+        }
+
+        .footer-flex {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 50px;
+            max-width: 1200px;
+        }
+
+        .footer-col h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 25px;
+            color: var(--accent);
+            font-weight: 800;
+        }
+
+        .footer-col p,
+        .footer-col a {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: block;
+        }
+
+        .footer-col a:hover {
+            color: var(--accent);
+        }
+
+        .footer-brand {
+            max-width: 350px;
+        }
+
+        .footer-brand .brand-text {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .footer-tagline {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-top: 15px;
+        }
+
+        .location {
+            font-weight: 600;
+            color: var(--accent) !important;
+            margin-top: 25px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .copyright {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            letter-spacing: 1px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 3rem;
@@ -243,6 +477,15 @@
             .brand-text {
                 font-size: 1.1rem;
             }
+
+            .modal-content {
+                padding: 40px 30px;
+            }
+
+            .footer-flex {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
         }
     </style>
 </head>
@@ -255,8 +498,9 @@
             <img src="brand-ivory-logo.png" alt="Brand Ivory" class="logo-img">
             <span class="brand-text">BRAND IVORY</span>
         </a>
-        <a href="mailto:yassine@brandivory.com" class="nav-cta">Inquire</a>
+        <button onclick="openContactModal()" class="nav-cta">Inquire</button>
     </nav>
+
 
     <header>
         <div class="reveal">
@@ -264,13 +508,14 @@
             <h1>Securing Global Market Authority for Brands</h1>
             <p class="description">Brand Ivory is a private brokerage facilitating the secure acquisition of world-class
                 digital identities for high-growth enterprises.</p>
-            <!-- Button fixed to trigger email -->
-            <a href="mailto:yassine@brandivory.com" class="nav-cta"
-                style="background: var(--primary); color: white;">Start a Conversation</a>
+            <!-- Button fixed to trigger modal -->
+            <button onclick="openContactModal()" class="nav-cta"
+                style="background: var(--primary); color: white; border: none;">Start a Conversation</button>
         </div>
+
     </header>
 
-    <section class="services">
+    <section id="services" class="services">
         <div class="grid">
             <div class="service-item">
                 <h3>Bespoke Acquisitions</h3>
@@ -298,24 +543,144 @@
 
     <footer>
         <div class="footer-flex">
+            <div class="footer-col footer-brand">
+                <img src="brand-ivory-logo.png" alt="Brand Ivory" class="logo-img"
+                    style="margin-bottom: 20px; height: 50px; filter: brightness(0) invert(1);">
+                <span class="brand-text">BRAND IVORY</span>
+                <p class="footer-tagline">Strategic management of premium digital identities and corporate assets for
+                    discerning enterprises worldwide.</p>
+            </div>
             <div class="footer-col">
-                <!-- Footer logo added -->
-                <img src="brand-ivory-logo.png" alt="Brand Ivory" class="logo-img" style="margin-bottom: 20px; height: 40px;">
-                <span class="brand-text" style="font-size: 1rem;">BRAND IVORY</span>
-                <p style="max-width: 300px;">Strategic management of premium digital identities and corporate assets.
-                </p>
+                <h4>Services</h4>
+                <a href="#services">Bespoke Acquisitions</a>
+                <a href="#services">Private Brokerage</a>
+                <a href="#services">Institutional Security</a>
             </div>
             <div class="footer-col">
                 <h4>Contact</h4>
-                <p>yassine@brandivory.com</p>
-                <p>LinkedIn: /in/yassinemourchid</p>
+                <a href="#" onclick="openContactModal(); return false;">yassine@brandivory.com</a>
                 <p class="location">Seattle, Washington, USA</p>
             </div>
         </div>
         <div class="copyright">
-            &copy; 2026 Brand Ivory. Private Brokerage Bureau.
+            © 2026 Brand Ivory. Private Brokerage Bureau. All Rights Reserved.
         </div>
     </footer>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeContactModal()">&times;</button>
+            <h2 class="modal-header">Let's Connect</h2>
+            <p class="modal-subtext">We're here to help you secure the perfect digital identity for your brand. Reach
+                out directly via email:</p>
+
+            <div class="email-display">
+                <div class="email-text">yassine@brandivory.com</div>
+            </div>
+
+            <button id="copyBtn" class="copy-btn" onclick="copyEmail()">
+                <span class="copy-text">Copy Email Address</span>
+                <span class="copy-feedback">✓ Copied to Clipboard!</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Open modal
+        function openContactModal() {
+            const modal = document.getElementById('contactModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        // Close modal
+        function closeContactModal() {
+            const modal = document.getElementById('contactModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+
+            // Reset copy button after closing
+            setTimeout(() => {
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.classList.remove('copied');
+            }, 300);
+        }
+
+        // Close modal when clicking overlay (not the content)
+        function closeModalOnOverlay(event) {
+            if (event.target.id === 'contactModal') {
+                closeContactModal();
+            }
+        }
+
+        // Copy email to clipboard
+        function copyEmail() {
+            const email = 'yassine@brandivory.com';
+            const copyBtn = document.getElementById('copyBtn');
+
+            // Modern clipboard API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(email).then(() => {
+                    showCopyFeedback(copyBtn);
+                }).catch(() => {
+                    // Fallback for older browsers
+                    fallbackCopy(email, copyBtn);
+                });
+            } else {
+                // Fallback for older browsers
+                fallbackCopy(email, copyBtn);
+            }
+        }
+
+        // Fallback copy method for older browsers
+        function fallbackCopy(text, btn) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                showCopyFeedback(btn);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        // Show copy feedback
+        function showCopyFeedback(btn) {
+            btn.classList.add('copied');
+
+            // Reset after 2 seconds
+            setTimeout(() => {
+                btn.classList.remove('copied');
+            }, 2000);
+        }
+
+        // Close modal with ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeContactModal();
+            }
+        });
+
+        // Smooth reveal animation on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
 
 </body>
 
